@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The World's Best Desserts Bracket - Final</title>
+    <style>
+        /* Base Styling for the Bracket */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #8b4513;
+        }
+        
+        /* Control Panel Styles */
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 250px;
+        }
+
+        .controls button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            background-color: #d32f2f; /* Red/Maroon for reset */
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .controls button:hover {
+            background-color: #b71c1c;
+        }
+
+        .bracket-container {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            overflow-x: auto;
+            min-width: 1400px;
+        }
+
+        /* Styling for each Round Column */
+        .round {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 10px;
+        }
+
+        .round h2 {
+            margin-bottom: 20px;
+            color: #555;
+            font-size: 1.1em;
+        }
+
+        /* Styling for a single Matchup */
+        .matchup {
+            width: 300px;
+            margin-bottom: 5px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Spacing for Matchups in later rounds */
+        .round-of-32 .matchup { margin-bottom: 10px; }
+        .sweet-sixteen .matchup { margin-bottom: 50px; } 
+        .elite-eight .matchup { margin-bottom: 120px; } 
+        .final-four .matchup { margin-bottom: 250px; } 
+        .championship .matchup { margin-bottom: 30px; }
+
+        .round-of-32 .matchup:last-child { margin-bottom: 0; }
+        .sweet-sixteen .matchup:last-child { margin-bottom: 0; }
+        .elite-eight .matchup:last-child { margin-bottom: 0; }
+        .final-four .matchup:last-child { margin-bottom: 0; }
+
+
+        /* Styling for a single Dessert/Team Box */
+        .dessert-box {
+            display: flex;
+            flex-direction: column;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            font-size: 0.9em;
+            box-sizing: border-box;
+            height: 110px;
+            /* Ensured font weight is normal by default */
+            font-weight: normal; 
+        }
+        
+        .dessert-box.winner, .dessert-box.loser {
+            height: 110px !important; 
+        }
+
+        .round-2 .dessert-box, .round-3 .dessert-box, .round-4 .dessert-box, .round-5 .dessert-box {
+             height: 40px;
+        }
+
+        .dessert-box:hover {
+            background-color: #ffe0b2;
+            transform: scale(1.02);
+            border-color: #ff9800;
+        }
+
+        /* --- CORRECTED WINNER STYLING --- */
+        .winner {
+            font-weight: bold; /* Ensure font is bold */
+            background-color: #fffacd;
+            border: 3px solid #ff4444; /* Red Outline */
+            box-shadow: 0 0 5px rgba(255, 0, 0, 0.4);
+        }
+        /* Applied bolding to text elements inside the box as fallback */
+        .winner .dessert-name, .winner span {
+            font-weight: bold !important;
+        }
+        /* --- END CORRECTED STYLING --- */
+
+        .dessert-header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 3px;
+        }
+
+        .dessert-name {
+            font-weight: bold;
+            flex-grow: 1;
+        }
+
+        .seed {
+            font-weight: bold;
+            color: #d32f2f;
+            margin-right: 5px;
+        }
+
+        .dessert-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .dessert-description {
+            font-size: 0.75em;
+            color: #666;
+            line-height: 1.2;
+            padding-left: 5px;
+            padding-top: 5px;
+        }
+
+        /* Hide image and description after Round 1 */
+        .round-2 .dessert-img, .round-3 .dessert-img, .round-4 .dessert-img, .round-5 .dessert-img,
+        .round-2 .dessert-description, .round-3 .dessert-description, .round-4 .dessert-description, .round-5 .dessert-description {
+            display: none;
+        }
+        
+        /* Ensure bolding is applied to winner text in non-R1 rounds */
+        .round-2 .winner span, .round-3 .winner span, .round-4 .winner span, .round-5 .winner span {
+            font-weight: bold !important;
+        }
+
+        /* Hide the seed number after the first round */
+        .round-2 .seed, .round-3 .seed, .round-4 .seed, .round-5 .seed {
+            display: none;
+        }
+
+        .region-name {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            text-align: left;
+            width: 100%;
+            color: #4a148c;
+        }
+        
+        /* Champion Box - Special Styling */
+        .champion-container {
+            margin-top: 20px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .champion-box {
+            padding: 15px;
+            border: 3px solid #ff9800;
+            background-color: #fff8e1;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #d32f2f;
+            display: inline-block;
+            min-width: 300px;
+        }
+
+        .winner-of-all {
+             background-color: #ffeb3b;
+             border: 3px solid #d32f2f; /* Darker red for champion border */
+             color: #000;
+             font-size: 1.7em;
+        }
+        
+        /* Region/Quarter Dividers for R1 */
+        .round-of-32 .matchup:nth-child(8) { margin-bottom: 25px !important; }
+        .round-of-32 .matchup:nth-child(16) { margin-bottom: 25px !important; }
+        .round-of-32 .matchup:nth-child(24) { margin-bottom: 25px !important; }
+        .round-of-32 .matchup:nth-child(32) { margin-bottom: 0 !important; }
+        
+        /* Line Connectors (Simplified Visuals) */
+        .matchup::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -10px;
+            width: 10px;
+            height: 1px;
+            background-color: #555;
+            z-index: 1;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>🌎 The World's Best Desserts March Madness Bracket 🍰</h1>
+    
+    <div class="controls">
+        <label for="bracket-owner">Bracket Creator's Name:</label>
+        <input type="text" id="bracket-owner" placeholder="Enter your name here">
+        <button id="reset-button">Reset Bracket</button>
+    </div>
+
+    <div class="bracket-container">
+        
+        <div class="round round-of-32 round-1">
+            <h2>Round of 32</h2>
+            
+            <div class="region-name">Americas Quarter</div>
+            <div class="matchup" id="R1G1">
+                <div class="dessert-box" id="D1" data-round="1" data-match="R1G1" data-seed="1" data-region="Americas" data-name="Chocolate Chip Cookies">
+                    <div class="dessert-header"><img src="images/chocolatechipcookies.jpg" class="dessert-img"><span class="seed">(1)</span> <span class="dessert-name">Chocolate Chip Cookies</span></div>
+                    <div class="dessert-description">A ubiquitous American baked favorite combining brown sugar, vanilla, and chocolate morsels.</div>
+                </div>
+                <div class="dessert-box" id="D2" data-round="1" data-match="R1G1" data-seed="8" data-region="Americas" data-name="Ice Cream">
+                    <div class="dessert-header"><img src="images/icecream.jpg" class="dessert-img"><span class="seed">(8)</span> <span class="dessert-name">Ice Cream</span></div>
+                    <div class="dessert-description">A globally popular frozen dessert made from dairy cream, milk, sugar, and various flavorings.</div>
+                </div>
+            </div>
+            <div class="matchup" id="R1G2">
+                <div class="dessert-box" id="D3" data-round="1" data-match="R1G2" data-seed="4" data-region="Americas" data-name="Banana Pudding">
+                    <div class="dessert-header"><img src="images/bananapudding.jpg" class="dessert-img"><span class="seed">(4)</span> <span class="dessert-name">Banana Pudding</span></div>
+                    <div class="dessert-description">A layered dessert featuring vanilla custard, sliced bananas, and vanilla wafers or meringue.</div>
+                </div>
+                <div class="dessert-box" id="D4" data-round="1" data-match="R1G2" data-seed="5" data-region="Americas" data-name="Tres Leches">
+                    <div class="dessert-header"><img src="images/tresleches.jpg" class="dessert-img"><span class="seed">(5)</span> <span class="dessert-name">Tres Leches</span></div>
+                    <div class="dessert-description">A spongy cake soaked in three kinds of milk: evaporated, condensed, and heavy cream.</div>
+                </div>
+            </div>
+            <div class="matchup" id="R1G3">
+                <div class="dessert-box" id="D5" data-round="1" data-match="R1G3" data-seed="3" data-region="Americas" data-name="Brownie">
+                    <div class="dessert-header"><img src="images/brownie.jpg" class="dessert-img"><span class="seed">(3)</span> <span class="dessert-name">Brownie</span></div>
+                    <div class="dessert-description">A dense, square-shaped baked chocolate dessert, known for its fudgy or cakey texture.</div>
+                </div>
+                <div class="dessert-box" id="D6" data-round="1" data-match="R1G3" data-seed="6" data-region="Americas" data-name="Churros">
+                    <div class="dessert-header"><img src="images/churros.jpg" class="dessert-img"><span class="seed">(6)</span> <span class="dessert-name">Churros</span></div>
+                    <div class="dessert-description">Fried dough pastries, often dusted with cinnamon sugar and dipped in chocolate or dulce de leche.</div>
+                </div>
+            </div>
+            <div class="matchup" id="R1G4">
+                <div class="dessert-box" id="D7" data-round="1" data-match="R1G4" data-seed="2" data-region="Americas" data-name="Apple Pie">
+                    <div class="dessert-header"><img src="images/applepie.jpg" class="dessert-img"><span class="seed">(2)</span> <span class="dessert-name">Apple Pie</span></div>
+                    <div class="dessert-description">A fruit pastry featuring an apple filling, traditionally served warm with a scoop of vanilla ice cream.</div>
+                </div>
+                <div class="dessert-box" id="D8" data-round="1" data-match="R1G4" data-seed="7" data-region="Americas" data-name="Cheesecake">
+                    <div class="dessert-header"><img src="images/cheesecake.jpg" class="dessert-img"><span class="seed">(7)</span> <span class="dessert-name">Cheesecake</span></div>
+                    <div class="dessert-description">A sweet dessert consisting of one or more layers, with the main layer being a soft mixture of cheese, eggs, and sugar.</div>
+                </div>
+            </div>
+
+            <div class="region-name">Europe Quarter</div>
+            <div class="matchup" id="R1G5">
+                <div class="dessert-box" id="D9" data-round="1" data-match="R1G5" data-seed="1" data-region="Europe" data-name="Tiramisu">
+                    <div class="dessert-header"><img src="images/tiramisu.jpg" class="dessert-img"><span class="seed">(1)</span> <span class="dessert-name">Tiramisu</span></div>
+                    <div class="dessert-description">An Italian layered dessert made of coffee-soaked ladyfingers, mascarpone cream, and cocoa.</div>
+                </div>
+                <div class="dessert-box" id="D10" data-round="1" data-match="R1G5" data-seed="8" data-region="Europe" data-name="Bread Pudding">
+                    <div class="dessert-header"><img src="images/breadpudding.jpg" class="dessert-img"><span class="seed">(8)</span> <span class="dessert-name">Bread Pudding</span></div>
+                    <div class="dessert-description">A classic dessert made from stale bread, eggs, milk, and sugar, often served warm with a sauce.</div>
+                </div>
+            </div>
+            <div class="matchup" id="R1G6">
+                <div class="dessert-box" id="D11" data-round="1" data-match="R1G6" data-seed="4" data-region="Europe" data-name="Pastel de Nata">
+                    <div class="dessert-header"><img src="images/pasteldenata.jpg" class="dessert-img"><span class="seed">(4)</span> <span class="dessert-name">Pastel de Nata</span></div>
+                    <div class="dessert-description">A crispy Portuguese egg custard tart with a caramelized top, often dusted with cinnamon.</div>
+                </div>
+                <div class="dessert-box" id="D12" data-round="1" data-match="R1G6" data-seed="5" data-region="Europe" data-name="Macaron">
+                    <div class="dessert-header"><img src="images/macaron.jpg" class="dessert-img"><span class="seed">(5)</span> <span class="dessert-name">Macaron</span></div>
+                    <div class="dessert-description">A small, colorful French meringue-based cookie sandwich filled with ganache or jam.</div>
+                </div>
+            </div>
+            <div class="matchup" id="R1G7">
+                <div class="dessert-box" id="D13" data-round="1" data-match="R1G7" data-seed="3" data-region="Europe" data-name="Crème Brûlée">
+                    <div class="dessert-header"><img src="images/cremebrulee.jpg" class="dessert-img"><span class="seed">(3)</span> <span class="dessert-name">Crème Brûlée</span></div>
+                    <div class="dessert-description">A rich custard base topped with a layer of hardened caramelized sugar, which is cracked before eating.</div>
+                </div>
+                <div class="dessert-box" id="D14" data-round="1" data-match="R1G7" data-seed="6" data-region="Europe" data-name="Gelato">
+                    <div class="dessert-header"><img src="images/gelato.jpg" class="dessert-img"><span class="seed">(6)</span> <span class="dessert-name">Gelato</span></div>
+                    <div class="dessert-description">The Italian version of ice cream, which is denser, uses less cream, and has a more intense flavor.</div>
+                </div>
+            </div>
+            <div class="matchup" id="R1G8">
+                <div class="dessert-box" id="D15" data-round="1" data-match="R1G8" data-seed="2" data-region="Europe" data-name="Sticky Toffee Pudding">
+                    <div class="dessert-header"><img src="images/stickytoffee.jpg" class="dessert-img"><span class="seed">(2)</span> <span class="dessert-name">Sticky Toffee Pudding</span></div>
+                    <div class="dessert-description">A moist sponge cake made with dates, covered in a rich toffee sauce and served with custard or ice cream.</div>
+                </div>
+                <div class="dessert-box" id="D16" data-round="1" data-match="R1G8" data-seed="7" data-region="Europe" data-name="Cannoli">
+                    <div class="dessert-header"><img src="images/cannoli.jpg" class="dessert-img"><span class="seed">(7)</span> <span class="dessert-name">Cannoli</span></div>
+                    <div class="dessert-description">Italian pastries from Sicily, consisting of tube-shaped fried dough filled with a sweet, creamy ricotta cheese filling.</div>
+                </div>
+            </div>
+
+            <div class="region-name">Rest of World Quarter (South Asia/MENA/Africa)</div>
+            <div class="matchup" id="R1G9">
+                <div class="dessert-box" id="D17" data-round="1" data-match="R1G9" data-seed="1" data-region="RoW" data-name="Kheer">
+                    <div class="dessert-header"><img src="images/kheer.jpg" class="dessert-img"><span class="seed">(1)</span> <span class="dessert-name">Kheer</span></div>
+                    <div class="dessert-description">A South Asian sweet rice pudding made by boiling rice, milk, and sugar, flavored with cardamom, raisins, and nuts.</div>
+                </div>
+                <div class="dessert-box" id="D18" data-round="1" data-match="R1G9" data-seed="8" data-region="RoW" data-name="Ladu">
+                    <div class="dessert-header"><img src="images/ladu.jpg" class="dessert-img"><span class="seed">(8)</span> <span class="dessert-name">Ladu</span></div>
+                    <div class="dessert-description">Spherical Indian sweets made from flour, ghee, and sugar, often made for festivals or religious offerings.</div>
+                </div>
+            </div>
+            <div class="matchup" id="R1G10">
+                <div class="dessert-box" id="D19" data-round="1" data-match="R1G10" data-seed="4" data-region="RoW" data-name="Gulab Jamun">
+                    <div class="dessert-header"><img src="images/gulabjamun.jpg" class="dessert-img"><span class="seed">(4)</span> <span class="dessert-name">Gulab Jamun</span></div>
+                    <div class="dessert-description">Soft, spongy fried milk-solids balls soaked in a rose-scented sugar syrup.</div>
+                </div>
+                <div class="dessert-box" id="D20" data-round="1" data-match="R1G10" data-seed="5" data-region="RoW" data-name="Gajar Ka Halva">
+                    <div class="dessert-header"><img src="images/gajarkahalva.jpg" class="dessert-img"><span class="seed">(5)</span> <span class="dessert-name">Gajar Ka Halva</span></div>
+                    <div class="dessert-description">A sweet Indian carrot-based pudding, often cooked slowly in milk and ghee with dried fruits and nuts.</div>
+                </div>
+            </div>
+            <div class="matchup" id="R1G11">
+                <div class="dessert-box" id="D21" data-round="1" data-match="R1G11" data-seed="3" data-region="RoW" data-name="Baklava">
+                    <div class="dessert-header"><img src="images/baklava.jpg" class="dessert-img"><span class="seed">(3)</span> <span class="dessert-name">Baklava</span></div>
+                    <div class="dessert-description">A rich, sweet pastry made of layers of filo dough filled with chopped nuts and sweetened with syrup or honey.</div>
+                </div>
+                <div class="dessert-box" id="D22" data-round="1" data-match="R1G11" data-seed="6" data-region="RoW" data-name="Kulfi">
+                    <div class="dessert-header"><img src="images/kulfi.jpg" class="dessert-img"><span class="seed">(6)</span> <span class="dessert-name">Kulfi</span></div>
+                    <div class="dessert-description">A traditional frozen Indian dairy dessert, known for its denser and creamier texture than Western ice cream.</div>
+                </div>
+            </div>
+            <div class="matchup" id="R1G12">
+                <div class="dessert-box" id="D23" data-round="1" data-match="R1G12" data-seed="2" data-region="RoW" data-name="Kunafa">
+                    <div class="dessert-header"><img src="images/kunafa.jpg" class="dessert-img"><span class="seed">(2)</span> <span class="dessert-name">Kunafa</span></div>
+                    <div class="dessert-description">A crisp cheese pastry soaked in sweet sugar syrup, made with thin shredded filo dough (kadayif).</div>
+                </div>
+                <div class="dessert-box" id="D24" data-round="1" data-match="R1G12" data-seed="7" data-region="RoW" data-name="Falooda">
+                    <div class="dessert-header"><img src="images/falooda.jpg" class="dessert-img"><span class="seed">(7)</span> <span class="dessert-name">Falooda</span></div>
+                    <div class="dessert-description">A cold dessert drink with layers of rose syrup, vermicelli, sweet basil seeds, and pieces of jelly with milk and ice cream.</div>
+                </div>
+            </div>
+
+            <div class="region-name">East Asia Quarter</div>
+            <div class="matchup" id="R1G13">
+                <div class="dessert-box" id="D25" data-round="1" data-match="R1G13" data-seed="1" data-region="EastAsia" data-name="Mango Sticky Rice">
+                    <div class="dessert-header"><img src="images/mangostickyrice.jpg" class="dessert-img"><span class="seed">(1)</span> <span class="dessert-name">Mango Sticky Rice</span></div>
+                    <div class="dessert-description">A traditional Thai dessert of glutinous rice, fresh mango, and rich coconut milk.</div>
+                </div>
+                <div class="dessert-box" id="D26" data-round="1" data-match="R1G13" data-seed="8" data-region="EastAsia" data-name="Taiyaki">
+                    <div class="dessert-header"><img src="images/taiyaki.jpg" class="dessert-img"><span class="seed">(8)</span> <span class="dessert-name">Taiyaki</span></div>
+                    <div class="dessert-description">A Japanese fish-shaped cake, often filled with red bean paste, custard, or chocolate.</div>
+                </div>
+            </div>
+            <div class="matchup" id="R1G14">
+                <div class="dessert-box" id="D27" data-round="1" data-match="R1G14" data-seed="4" data-region="EastAsia" data-name="Boba">
+                    <div class="dessert-header"><img src="images/boba.jpg" class="dessert-img"><span class="seed">(4)</span> <span class="dessert-name">Boba</span></div>
+                    <div class="dessert-description">A tea-based drink originating in Taiwan that includes chewy tapioca pearls, known as bubbles.</div>
+                </div>
+                <div class="dessert-box" id="D28" data-round="1" data-match="R1G14" data-seed="5" data-region="EastAsia" data-name="Egg Tart">
+                    <div class="dessert-header"><img src="images/eggtart.jpg" class="dessert-img"><span class="seed">(5)</span> <span class="dessert-name">Egg Tart</span></div>
+                    <div class="dessert-description">A Cantonese pastry consisting of a flaky crust filled with a delicate, sweet, steamed egg custard.</div>
+                </div>
+            </div>
+            <div class="matchup" id="R1G15">
+                <div class="dessert-box" id="D29" data-round="1" data-match="R1G15" data-seed="3" data-region="EastAsia" data-name="Mochi">
+                    <div class="dessert-header"><img src="images/mochi.jpg" class="dessert-img"><span class="seed">(3)</span> <span class="dessert-name">Mochi</span></div>
+                    <div class="dessert-description">A Japanese rice cake made of mochigome (glutinous rice), pounded into a soft, chewy paste.</div>
+                </div>
+                <div class="dessert-box" id="D30" data-round="1" data-match="R1G15" data-seed="6" data-region="EastAsia" data-name="Shaved Ice">
+                    <div class="dessert-header"><img src="images/shavedice.jpg" class="dessert-img"><span class="seed">(6)</span> <span class="dessert-name">Shaved Ice</span></div>
+                    <div class="dessert-description">A light, refreshing dessert made from finely shaved ice, topped with sweet syrups, fruits, or condensed milk.</div>
+                </div>
+            </div>
+            <div class="matchup" id="R1G16">
+                <div class="dessert-box" id="D31" data-round="1" data-match="R1G16" data-seed="2" data-region="EastAsia" data-name="Japanese Cheesecake">
+                    <div class="dessert-header"><img src="images/japanesecheesecake.jpg" class="dessert-img"><span class="seed">(2)</span> <span class="dessert-name">Japanese Cheesecake</span></div>
+                    <div class="dessert-description">A light, fluffy, and wobbly cheesecake that gets its airy texture from whipped egg whites.</div>
+                </div>
+                <div class="dessert-box" id="D32" data-round="1" data-match="R1G16" data-seed="7" data-region="EastAsia" data-name="Mango Sago">
+                    <div class="dessert-header"><img src="images/mangosago.jpg" class="dessert-img"><span class="seed">(7)</span> <span class="dessert-name">Mango Sago</span></div>
+                    <div class="dessert-description">A Hong Kong dessert soup made with chunks of fresh mango, pomelo, coconut milk, and tapioca pearls.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="round sweet-sixteen round-2">
+            <h2>Sweet Sixteen</h2>
+            
+            <div class="matchup" id="R2G1"><div class="dessert-box" data-round="2" data-match="R2G1" data-region="Americas">TBD</div><div class="dessert-box" data-round="2" data-match="R2G1" data-region="Americas">TBD</div></div>
+            <div class="matchup" id="R2G2"><div class="dessert-box" data-round="2" data-match="R2G2" data-region="Americas">TBD</div><div class="dessert-box" data-round="2" data-match="R2G2" data-region="Americas">TBD</div></div>
+            <div class="matchup" id="R2G3"><div class="dessert-box" data-round="2" data-match="R2G3" data-region="Europe">TBD</div><div class="dessert-box" data-round="2" data-match="R2G3" data-region="Europe">TBD</div></div>
+            <div class="matchup" id="R2G4"><div class="dessert-box" data-round="2" data-match="R2G4" data-region="Europe">TBD</div><div class="dessert-box" data-round="2" data-match="R2G4" data-region="Europe">TBD</div></div>
+            <div class="matchup" id="R2G5"><div class="dessert-box" data-round="2" data-match="R2G5" data-region="RoW">TBD</div><div class="dessert-box" data-round="2" data-match="R2G5" data-region="RoW">TBD</div></div>
+            <div class="matchup" id="R2G6"><div class="dessert-box" data-round="2" data-match="R2G6" data-region="RoW">TBD</div><div class="dessert-box" data-round="2" data-match="R2G6" data-region="RoW">TBD</div></div>
+            <div class="matchup" id="R2G7"><div class="dessert-box" data-round="2" data-match="R2G7" data-region="EastAsia">TBD</div><div class="dessert-box" data-round="2" data-match="R2G7" data-region="EastAsia">TBD</div></div>
+            <div class="matchup" id="R2G8"><div class="dessert-box" data-round="2" data-match="R2G8" data-region="EastAsia">TBD</div><div class="dessert-box" data-round="2" data-match="R2G8" data-region="EastAsia">TBD</div></div>
+        </div>
+
+        <div class="round elite-eight round-3">
+            <h2>Elite Eight (Regional Finals)</h2>
+            
+            <div class="matchup" id="R3G1"><div class="dessert-box" data-round="3" data-match="R3G1" data-region="Americas">TBD</div><div class="dessert-box" data-round="3" data-match="R3G1" data-region="Americas">TBD</div></div>
+            <div class="matchup" id="R3G2"><div class="dessert-box" data-round="3" data-match="R3G2" data-region="Europe">TBD</div><div class="dessert-box" data-round="3" data-match="R3G2" data-region="Europe">TBD</div></div>
+            <div class="matchup" id="R3G3"><div class="dessert-box" data-round="3" data-match="R3G3" data-region="RoW">TBD</div><div class="dessert-box" data-round="3" data-match="R3G3" data-region="RoW">TBD</div></div>
+            <div class="matchup" id="R3G4"><div class="dessert-box" data-round="3" data-match="R3G4" data-region="EastAsia">TBD</div><div class="dessert-box" data-round="3" data-match="R3G4" data-region="EastAsia">TBD</div></div>
+        </div>
+        
+        <div class="round final-four round-4">
+            <h2>Final Four (Global Semifinals)</h2>
+            
+            <div class="matchup" id="R4G1"><div class="dessert-box" data-round="4" data-match="R4G1">TBD</div><div class="dessert-box" data-round="4" data-match="R4G1">TBD</div></div>
+            <div class="matchup" id="R4G2"><div class="dessert-box" data-round="4" data-match="R4G2">TBD</div><div class="dessert-box" data-round="4" data-match="R4G2">TBD</div></div>
+        </div>
+        
+        <div class="round championship round-5">
+            <h2>World Dessert Championship</h2>
+            
+            <div class="matchup" id="R5G1"><div class="dessert-box" data-round="5" data-match="R5G1">TBD</div><div class="dessert-box" data-round="5" data-match="R5G1">TBD</div></div>
+        </div>
+        
+        <div class="round winner-round">
+            <h2>The World Champion</h2>
+            <div class="champion-container">
+                <div class="champion-box" id="Champion">TBD</div>
+            </div>
+        </div>
+
+    </div>
+    
+    <script>
+        // NOTE: The initialR1Content object should be updated manually if R1 content changes.
+        // It is used for the Reset button, but the live R1 HTML is static above.
+
+        function resetBracket() {
+            // 1. Clear all subsequent rounds (R2 through Champion)
+            document.querySelectorAll('.dessert-box').forEach(box => {
+                const round = parseInt(box.dataset.round);
+                if (round > 1) {
+                    box.innerHTML = 'TBD';
+                    box.dataset.seed = '';
+                    box.dataset.name = '';
+                    box.classList.remove('winner', 'loser');
+                }
+            });
+            
+            // 2. Reset the Champion box
+            document.getElementById('Champion').textContent = 'TBD';
+            document.getElementById('Champion').classList.remove('winner-of-all');
+            
+            // 3. Reset all R1 winners/losers classes
+            document.querySelectorAll('.round-1 .dessert-box').forEach(box => {
+                box.classList.remove('winner', 'loser');
+            });
+
+            // 4. Clear the name field
+            document.getElementById('bracket-owner').value = '';
+
+            alert("Bracket reset successfully! Start picking again!");
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const allBoxes = document.querySelectorAll('.dessert-box');
+            const resetButton = document.getElementById('reset-button');
+            
+            resetButton.addEventListener('click', resetBracket);
+
+            // Re-apply click listeners to all boxes
+            allBoxes.forEach(box => {
+                box.addEventListener('click', handleDessertClick);
+            });
+
+            function handleDessertClick(event) {
+                const clickedBox = event.currentTarget;
+                const round = parseInt(clickedBox.dataset.round);
+                const matchupId = clickedBox.dataset.match;
+                const dessertName = clickedBox.dataset.name;
+                
+                // --- Determine if the box is TBD or already a winner ---
+                let currentDisplay = clickedBox.dataset.round === '1' && clickedBox.querySelector('.dessert-name') 
+                                     ? clickedBox.querySelector('.dessert-name').textContent // R1 uses the name span
+                                     : clickedBox.textContent; // Later rounds use the whole content
+
+                if (currentDisplay.trim() === 'TBD' || clickedBox.classList.contains('winner')) return;
+
+
+                // 1. Mark the current winner and loser
+                const currentMatchup = document.getElementById(matchupId);
+                const boxesInMatchup = Array.from(currentMatchup.querySelectorAll('.dessert-box'));
+                
+                boxesInMatchup.forEach(box => {
+                    box.classList.remove('winner');
+                    box.classList.remove('loser');
+                });
+
+                clickedBox.classList.add('winner');
+                const loserBox = boxesInMatchup.find(box => box !== clickedBox);
+                loserBox.classList.add('loser');
+
+                // 2. Determine the next round and next matchup slot
+                let nextRound = round + 1;
+                let nextGameNum = 0;
+                let isTopHalf = false;
+
+                if (round === 1) { 
+                    const gameIndex = Array.from(document.querySelectorAll('.round-of-32 .matchup')).indexOf(currentMatchup) + 1;
+                    nextGameNum = Math.ceil(gameIndex / 2);
+                    isTopHalf = (gameIndex % 2 !== 0);
+                } else if (round === 2) { 
+                    const gameIndex = Array.from(document.querySelectorAll('.sweet-sixteen .matchup')).indexOf(currentMatchup) + 1;
+                    nextGameNum = Math.ceil(gameIndex / 2);
+                    isTopHalf = (gameIndex % 2 !== 0);
+                } else if (round === 3) { 
+                    const gameIndex = Array.from(document.querySelectorAll('.elite-eight .matchup')).indexOf(currentMatchup) + 1;
+                    nextGameNum = Math.ceil(gameIndex / 2);
+                    isTopHalf = (gameIndex % 2 !== 0);
+                } else if (round === 4) { 
+                    const gameIndex = Array.from(document.querySelectorAll('.final-four .matchup')).indexOf(currentMatchup) + 1;
+                    nextGameNum = 1;
+                    isTopHalf = (gameIndex % 2 !== 0);
+                } else if (round === 5) { 
+                    nextRound = 'Champion';
+                    nextGameNum = 1;
+                }
+
+                // 3. Update the next round's slot
+                if (nextRound === 'Champion') {
+                    const championBox = document.getElementById('Champion');
+                    championBox.textContent = dessertName;
+                    championBox.classList.add('winner-of-all');
+                } else {
+                    const nextMatchupId = `R${nextRound}G${nextGameNum}`;
+                    const nextMatchup = document.getElementById(nextMatchupId);
+                    
+                    let winnerNameDisplay = dessertName; 
+                    
+                    if (nextMatchup) {
+                        const nextSlotIndex = isTopHalf ? 0 : 1;
+                        const nextSlot = nextMatchup.querySelectorAll('.dessert-box')[nextSlotIndex];
+                        
+                        // Use a direct structure for R2+ to simplify content and bolding
+                        nextSlot.innerHTML = `<span class="seed">(${clickedBox.dataset.seed})</span> <span>${winnerNameDisplay}</span>`;
+                        nextSlot.dataset.seed = clickedBox.dataset.seed;
+                        nextSlot.dataset.name = winnerNameDisplay; 
+                        nextSlot.classList.remove('winner');
+                        nextSlot.classList.remove('loser');
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
